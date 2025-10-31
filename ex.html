@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Expense Tracker</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar for transaction list */
+        #transaction-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #transaction-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        #transaction-list::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+
+        #transaction-list::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 font-sans antialiased">
+
+    <!-- Main Container -->
+    <div class="container mx-auto p-4 md:p-8 max-w-6xl">
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6 text-center">My Expense Tracker</h1>
+
+        <!-- User ID Display -->
+        <div class="text-center text-xs text-gray-500 mb-4">
+            User ID: <span id="user-id-display" class="font-mono">Loading...</span>
+        </div>
+
+        <!-- Dashboard -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- Total Assets Card -->
+            <div class="bg-white shadow-xl rounded-2xl p-6 flex flex-col justify-center items-center">
+                <h2 class="text-lg font-semibold text-gray-500 mb-2">Total Assets</h2>
+                <div id="total-assets" class="text-4xl font-bold text-gray-900">$0.00</div>
+            </div>
+
+            <!-- Add Income Card -->
+            <div class="bg-white shadow-xl rounded-2xl p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Add Income</h2>
+                <form id="income-form" class="space-y-3">
+                    <div>
+                        <label for="income-amount" class="block text-sm font-medium text-gray-700">Amount</label>
+                        <input type="number" id="income-amount" step="0.01" min="0" required
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="e.g., 3000">
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
+                        Add Income
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sector Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <!-- Sector: For Allah -->
+            <div class="bg-white shadow-xl rounded-2xl p-6 space-y-4">
+                <h3 class="text-2xl font-bold text-green-700">For Allah</h3>
+                <div>
+                    <div class="text-sm text-gray-500">Current Balance</div>
+                    <div id="allah-balance" class="text-3xl font-semibold text-gray-800">$0.00</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Total Loans Out</div>
+                    <div id="allah-loans-out" class="text-lg font-medium text-red-500">$0.00</div>
+                </div>
+                <!-- Expense Form -->
+                <form class="expense-form border-t pt-4 space-y-3" data-sector="allah">
+                    <h4 class="font-semibold text-gray-700">Add Expense</h4>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Amount</label>
+                        <input type="number" step="0.01" min="0" required
+                            class="expense-amount mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Amount">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Description</label>
+                        <input type="text" required
+                            class="expense-desc mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Description">
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-green-700 transition duration-300">
+                        Spend
+                    </button>
+                </form>
+            </div>
+
+            <!-- Sector: For Relative -->
+            <div class="bg-white shadow-xl rounded-2xl p-6 space-y-4">
+                <h3 class="text-2xl font-bold text-blue-700">For Relative</h3>
+                <div>
+                    <div class="text-sm text-gray-500">Current Balance</div>
+                    <div id="relative-balance" class="text-3xl font-semibold text-gray-800">$0.00</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Loan from Allah</div>
+                    <div id="relative-loan" class="text-lg font-medium text-red-500">$0.00</div>
+                </div>
+                <!-- Expense Form -->
+                <form class="expense-form border-t pt-4 space-y-3" data-sector="relative">
+                    <h4 class="font-semibold text-gray-700">Add Expense</h4>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Amount</label>
+                        <input type="number" step="0.01" min="0" required
+                            class="expense-amount mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Amount">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Description</label>
+                        <input type="text" required
+                            class="expense-desc mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Description">
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
+                        Spend
+                    </button>
+                </form>
+                <!-- Loan Form -->
+                <form class="loan-form border-t pt-4 space-y-3" data-sector="relative">
+                    <h4 class="font-semibold text-gray-700">Get Loan from Allah</h4>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Amount</label>
+                        <input type="number" step="0.01" min="0" required
+                            class="loan-amount mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Loan Amount">
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-gray-700 transition duration-300">
+                        Take Loan
+                    </button>
+                </form>
+            </div>
+
+            <!-- Sector: For Personal -->
+            <div class="bg-white shadow-xl rounded-2xl p-6 space-y-4">
+                <h3 class="text-2xl font-bold text-purple-700">For Personal</h3>
+                <div>
+                    <div class="text-sm text-gray-500">Current Balance</div>
+                    <div id="personal-balance" class="text-3xl font-semibold text-gray-800">$0.00</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Loan from Allah</div>
+                    <div id="personal-loan" class="text-lg font-medium text-red-500">$0.00</div>
+                </div>
+                <!-- Expense Form -->
+                <form class="expense-form border-t pt-4 space-y-3" data-sector="personal">
+                    <h4 class="font-semibold text-gray-700">Add Expense</h4>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Amount</label>
+                        <input type="number" step="0.01" min="0" required
+                            class="expense-amount mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Amount">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Description</label>
+                        <input type="text" required
+                            class="expense-desc mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Description">
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-purple-700 transition duration-300">
+                        Spend
+                    </button>
+                </form>
+                <!-- Loan Form -->
+                <form class="loan-form border-t pt-4 space-y-3" data-sector="personal">
+                    <h4 class="font-semibold text-gray-700">Get Loan from Allah</h4>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Amount</label>
+                        <input type="number" step="0.01" min="0" required
+                            class="loan-amount mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Loan Amount">
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-gray-700 transition duration-300">
+                        Take Loan
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Transaction History -->
+        <div class="bg-white shadow-xl rounded-2xl p-6">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Transaction History</h3>
+            <div id="transaction-list" class="space-y-3 max-h-96 overflow-y-auto pr-2">
+                <!-- Transactions will be dynamically inserted here -->
+                <p class="text-gray-500">No transactions yet.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Modal for Errors (No alert()) -->
+    <div id="error-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full mx-4">
+            <h3 class="text-xl font-bold text-red-600 mb-4">Error</h3>
+            <p id="error-message" class="text-gray-700 mb-6">Something went wrong.</p>
+            <button id="close-modal-btn"
+                class="w-full bg-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-red-700 transition duration-300">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import {
+            getAuth,
+            signInAnonymously,
+            signInWithCustomToken,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            getDoc,
+            setDoc,
+            onSnapshot,
+            collection,
+            addDoc,
+            query,
+            Timestamp,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-util.js";
+
+        // --- GLOBAL VARIABLES ---
+
+        // Firebase config
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app, auth, db, userId;
+        let stateDocRef, transactionsColRef;
+        let unsubscribeState, unsubscribeTransactions; // To detach listeners
+
+        // Local state
+        let currentState = {
+            balances: { allah: 0, relative: 0, personal: 0 },
+            loans: { relative: 0, personal: 0 }
+        };
+
+        // --- DOM ELEMENTS ---
+        const ui = {
+            totalAssets: document.getElementById('total-assets'),
+            allahBalance: document.getElementById('allah-balance'),
+            allahLoansOut: document.getElementById('allah-loans-out'),
+            relativeBalance: document.getElementById('relative-balance'),
+            relativeLoan: document.getElementById('relative-loan'),
+            personalBalance: document.getElementById('personal-balance'),
+            personalLoan: document.getElementById('personal-loan'),
+            incomeForm: document.getElementById('income-form'),
+            incomeAmount: document.getElementById('income-amount'),
+            expenseForms: document.querySelectorAll('.expense-form'),
+            loanForms: document.querySelectorAll('.loan-form'),
+            transactionList: document.getElementById('transaction-list'),
+            errorModal: document.getElementById('error-modal'),
+            errorMessage: document.getElementById('error-message'),
+            closeModalBtn: document.getElementById('close-modal-btn'),
+            userIdDisplay: document.getElementById('user-id-display')
+        };
+
+        // --- HELPER FUNCTIONS ---
+
+        /**
+         * Formats a number as USD currency.
+         * @param {number} amount - The number to format.
+         * @returns {string} - Formatted currency string.
+         */
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(amount || 0);
+        }
+
+        /**
+         * Shows a custom error modal.
+         * @param {string} message - The error message to display.
+         */
+        function showModal(message) {
+            ui.errorMessage.textContent = message;
+            ui.errorModal.classList.remove('hidden');
+        }
+
+        /**
+         * Hides the custom error modal.
+         */
+        function hideModal() {
+            ui.errorModal.classList.add('hidden');
+        }
+
+        // --- RENDER FUNCTION ---
+
+        /**
+         * Updates the entire UI based on the current local state.
+         */
+        function renderUI() {
+            if (!currentState) return;
+
+            const { balances, loans } = currentState;
+            const totalAssets = (balances.allah || 0) + (balances.relative || 0) + (balances.personal || 0);
+            const totalLoansOut = (loans.relative || 0) + (loans.personal || 0);
+
+            ui.totalAssets.textContent = formatCurrency(totalAssets);
+
+            ui.allahBalance.textContent = formatCurrency(balances.allah);
+            ui.allahLoansOut.textContent = formatCurrency(totalLoansOut);
+
+            ui.relativeBalance.textContent = formatCurrency(balances.relative);
+            ui.relativeLoan.textContent = formatCurrency(loans.relative);
+
+            ui.personalBalance.textContent = formatCurrency(balances.personal);
+            ui.personalLoan.textContent = formatCurrency(loans.personal);
+        }
+
+        /**
+         * Renders the transaction history list.
+         * @param {Array} transactions - Array of transaction objects from Firestore.
+         */
+        function renderTransactions(transactions) {
+            if (transactions.length === 0) {
+                ui.transactionList.innerHTML = '<p class="text-gray-500">No transactions yet.</p>';
+                return;
+            }
+
+            // Sort transactions by timestamp, newest first
+            transactions.sort((a, b) => b.timestamp.toMillis() - a.timestamp.toMillis());
+
+            ui.transactionList.innerHTML = transactions.map(tx => {
+                const time = tx.timestamp.toDate().toLocaleString();
+                let title = '';
+                let amountColor = 'text-gray-800';
+                let amount = formatCurrency(tx.amount);
+
+                switch (tx.type) {
+                    case 'income':
+                        title = 'Income Added';
+                        amountColor = 'text-green-600';
+                        amount = `+${amount}`;
+                        break;
+                    case 'expense':
+                        title = `Expense: ${tx.description} (${tx.sector})`;
+                        amountColor = 'text-red-600';
+                        amount = `-${amount}`;
+                        break;
+                    case 'loan':
+                        title = `Loan to ${tx.to} from ${tx.from}`;
+                        amountColor = 'text-blue-600';
+                        break;
+                    case 'repayment':
+                        title = `Loan Repayment from ${tx.from}`;
+                        amountColor = 'text-green-500';
+                        break;
+                }
+
+                return `
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <div>
+                            <div class="font-semibold">${title}</div>
+                            <div class="text-sm text-gray-500">${time}</div>
+                        </div>
+                        <div class="font-bold text-lg ${amountColor}">${amount}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- FIREBASE LOGIC ---
+
+        /**
+         * Initializes the Firestore database and listeners for the current user.
+         */
+        function setupFirestoreListeners() {
+            if (!userId) return;
+
+            // Define document and collection references
+            const collectionPath = `artifacts/${appId}/users/${userId}/expenseTracker`;
+            stateDocRef = doc(db, collectionPath, 'state');
+            transactionsColRef = collection(db, stateDocRef.path, 'transactions');
+
+            // --- State Snapshot Listener ---
+            // Detach any existing listener
+            if (unsubscribeState) unsubscribeState();
+
+            unsubscribeState = onSnapshot(stateDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    // Update local state and render
+                    currentState = docSnap.data();
+                    renderUI();
+                } else {
+                    // No state doc, create the initial one
+                    console.log("No state document found, creating initial state.");
+                    createInitialState();
+                }
+            }, (error) => {
+                console.error("Error listening to state document: ", error);
+                showModal("Could not load your data. Please refresh.");
+            });
+
+            // --- Transactions Snapshot Listener ---
+            // Detach any existing listener
+            if (unsubscribeTransactions) unsubscribeTransactions();
+
+            const q = query(transactionsColRef);
+            unsubscribeTransactions = onSnapshot(q, (querySnapshot) => {
+                const transactions = [];
+                querySnapshot.forEach((doc) => {
+                    transactions.push({ id: doc.id, ...doc.data() });
+                });
+                renderTransactions(transactions);
+            }, (error) => {
+                console.error("Error listening to transactions: ", error);
+            });
+        }
+
+        /**
+         * Creates the initial state document in Firestore.
+         */
+        async function createInitialState() {
+            const initialState = {
+                balances: { allah: 0, relative: 0, personal: 0 },
+                loans: { relative: 0, personal: 0 }
+            };
+            try {
+                await setDoc(stateDocRef, initialState);
+                currentState = initialState;
+                renderUI();
+            } catch (error) {
+                console.error("Error creating initial state: ", error);
+                showModal("Could not initialize your tracker.");
+            }
+        }
+
+        // --- EVENT HANDLERS ---
+
+        /**
+         * Handles the "Add Income" form submission.
+         * Implements the custom loan repayment logic.
+         */
+        async function handleAddIncome(e) {
+            e.preventDefault();
+            const amount = parseFloat(ui.incomeAmount.value);
+            if (isNaN(amount) || amount <= 0) {
+                showModal("Please enter a valid positive income amount.");
+                return;
+            }
+
+            // Create deep copies of current state to modify
+            let updatedBalances = { ...currentState.balances };
+            let updatedLoans = { ...currentState.loans };
+
+            // 1. Divide income into 3 parts
+            const share = amount / 3;
+            let newAllah = share;
+            let newRelative = share;
+            let newPersonal = share;
+
+            const repaymentTransactions = [];
+
+            // 2. Pay loans from the specific sector's share
+            // Repay 'relative' loan
+            if (updatedLoans.relative > 0 && newRelative > 0) {
+                const payment = Math.min(updatedLoans.relative, newRelative);
+                newRelative -= payment; // Remainder for the sector
+                updatedBalances.allah += payment; // Allah gets the repayment
+                updatedLoans.relative -= payment; // Loan is reduced
+
+                if (payment > 0) {
+                    repaymentTransactions.push({
+                        type: 'repayment',
+                        from: 'relative',
+                        amount: payment,
+                        timestamp: serverTimestamp()
+                    });
+                }
+            }
+
+            // Repay 'personal' loan
+            if (updatedLoans.personal > 0 && newPersonal > 0) {
+                const payment = Math.min(updatedLoans.personal, newPersonal);
+                newPersonal -= payment; // Remainder for the sector
+                updatedBalances.allah += payment; // Allah gets the repayment
+                updatedLoans.personal -= payment; // Loan is reduced
+
+                if (payment > 0) {
+                    repaymentTransactions.push({
+                        type: 'repayment',
+                        from: 'personal',
+                        amount: payment,
+                        timestamp: serverTimestamp()
+                    });
+                }
+            }
+
+            // 3. Add remaining shares and Allah's share to balances
+            updatedBalances.allah += newAllah;
+            updatedBalances.relative += newRelative;
+            updatedBalances.personal += newPersonal;
+
+            // 4. Save the new state to Firestore
+            const newState = { balances: updatedBalances, loans: updatedLoans };
+            try {
+                await setDoc(stateDocRef, newState); // Overwrites with new state
+
+                // Add transaction records
+                await addDoc(transactionsColRef, {
+                    type: 'income',
+                    amount: amount,
+                    timestamp: serverTimestamp()
+                });
+                for (const tx of repaymentTransactions) {
+                    await addDoc(transactionsColRef, tx);
+                }
+
+                ui.incomeForm.reset();
+            } catch (error) {
+                console.error("Error adding income: ", error);
+                showModal("Could not save income. Please try again.");
+            }
+        }
+
+        /**
+         * Handles the "Add Expense" form submissions.
+         */
+        async function handleAddExpense(e) {
+            e.preventDefault();
+            const sector = e.target.dataset.sector;
+            const amountInput = e.target.querySelector('.expense-amount');
+            const descInput = e.target.querySelector('.expense-desc');
+
+            const amount = parseFloat(amountInput.value);
+            const description = descInput.value.trim();
+
+            if (isNaN(amount) || amount <= 0) {
+                showModal("Please enter a valid positive expense amount.");
+                return;
+            }
+            if (!description) {
+                showModal("Please enter a description for the expense.");
+                return;
+            }
+            if (amount > currentState.balances[sector]) {
+                showModal(`Not enough money in the "${sector}" sector.`);
+                return;
+            }
+
+            // Create new balances object
+            let updatedBalances = { ...currentState.balances };
+            updatedBalances[sector] -= amount;
+
+            try {
+                // Update just the balances field in Firestore
+                await setDoc(stateDocRef, { balances: updatedBalances }, { merge: true });
+
+                // Add transaction record
+                await addDoc(transactionsColRef, {
+                    type: 'expense',
+                    sector: sector,
+                    amount: amount,
+                    description: description,
+                    timestamp: serverTimestamp()
+                });
+
+                e.target.reset();
+            } catch (error) {
+                console.error("Error adding expense: ", error);
+                showModal("Could not save expense. Please try again.");
+            }
+        }
+
+        /**
+         * Handles the "Take Loan" form submissions.
+         */
+        async function handleTakeLoan(e) {
+            e.preventDefault();
+            const sector = e.target.dataset.sector; // 'relative' or 'personal'
+            const amountInput = e.target.querySelector('.loan-amount');
+            const amount = parseFloat(amountInput.value);
+
+            if (isNaN(amount) || amount <= 0) {
+                showModal("Please enter a valid positive loan amount.");
+                return;
+            }
+            if (amount > currentState.balances.allah) {
+                showModal("Not enough money in the 'For Allah' sector to provide this loan.");
+                return;
+            }
+
+            // Create deep copies
+            let updatedBalances = { ...currentState.balances };
+            let updatedLoans = { ...currentState.loans };
+
+            // Perform the transfer
+            updatedBalances.allah -= amount;
+            updatedBalances[sector] += amount;
+            updatedLoans[sector] += amount;
+
+            const newState = { balances: updatedBalances, loans: updatedLoans };
+            try {
+                await setDoc(stateDocRef, newState); // Save the new state
+
+                // Add transaction record
+                await addDoc(transactionsColRef, {
+                    type: 'loan',
+                    from: 'allah',
+                    to: sector,
+                    amount: amount,
+                    timestamp: serverTimestamp()
+                });
+
+                e.target.reset();
+            } catch (error) {
+                console.error("Error taking loan: ", error);
+                showModal("Could not process loan. Please try again.");
+            }
+        }
+
+        // --- INITIALIZATION ---
+
+        /**
+         * Main function to initialize the application.
+         */
+        async function main() {
+            setLogLevel('Debug');
+
+            // Attach modal close button listener
+            ui.closeModalBtn.addEventListener('click', hideModal);
+
+            try {
+                // Initialize Firebase
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                // Listen for authentication state changes
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        // User is signed in
+                        userId = user.uid;
+                        ui.userIdDisplay.textContent = userId;
+                        console.log("User signed in with UID:", userId);
+
+                        // Set up Firestore listeners
+                        setupFirestoreListeners();
+
+                        // Attach app event listeners *after* auth is ready
+                        ui.incomeForm.addEventListener('submit', handleAddIncome);
+
+                        ui.expenseForms.forEach(form => {
+                            form.addEventListener('submit', handleAddExpense);
+                        });
+
+                        ui.loanForms.forEach(form => {
+                            form.addEventListener('submit', handleTakeLoan);
+                        });
+
+                    } else {
+                        // User is not signed in
+                        console.log("User not signed in. Attempting sign-in...");
+                        ui.userIdDisplay.textContent = "Authenticating...";
+                        // Sign in
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                    }
+                });
+
+            } catch (error) {
+                console.error("Error during app initialization: ", error);
+                showModal("Application failed to load. Check console for details.");
+            }
+        }
+
+        // Run the application
+        main();
+
+    </script>
+</body>
+
+</html>
