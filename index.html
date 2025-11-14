@@ -6,6 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Food Hub - দৈনিক বিশুদ্ধ দুধ সরবরাহ</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@7.12.15/dist/sweetalert2.all.min.js"></script>
+    <style>
+        .form-container {
+            max-width: 100vw;
+            margin: auto;
+            margin-top: 50px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+    </style>
     <style>
         body {
             background-color: #f8fafc;
@@ -45,12 +60,12 @@
         <div class="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-2">
 
-                <h1 class="text-2xl font-extrabold text-milk-blue"><img src="lo.png" width="150" alt="">
+                <h1 class="text-2xl font-extrabold text-milk-blue"><img src="lo.png" width="130" alt="">
                 </h1>
             </div>
 
             <a href="#order-section" onclick="scrollToOrder(event)"
-                class="px-5 py-2 bg-milk-blue text-white font-semibold rounded-lg hover:bg-milk-blue/90 transition transform hover:scale-105">
+                class="px-2 py-2 bg-milk-blue text-white font-semibold rounded-lg hover:bg-milk-blue/90 transition transform hover:scale-105">
                 অর্ডার করুন
             </a>
         </div>
@@ -115,7 +130,7 @@
     </section>
 
     <!-- Order Form -->
-    <section id="order-section" class="py-20 px-6 bg-milk-green/20">
+    <!-- <section id="order-section" class="py-20 px-6 bg-milk-green/20">
         <h2 class="text-3xl sm:text-4xl font-bold text-center text-milk-blue mb-8">অর্ডার করুন</h2>
         <p class="text-center text-gray-600 mb-8">
             অনুগ্রহ পুর্বক আপনার তথ্য দিয়ে নিচের ফর্মটি পূরণ করুন। আমরা দ্রুত আপনার সাথে যোগাযোগ করব।
@@ -128,7 +143,71 @@
                 লোড হচ্ছে...
             </iframe>
         </div>
-    </section>
+    </section> -->
+    <div class="container" style="margin-bottom: 3rem;" id="order-section">
+        <div class="form-container">
+            <h4 class="text-center mb-4">বিস্তারিত জানতে এবং অর্ডার করতে <br> ফর্মটি সাবমিট করুন <br> আমরা শীঘ্রই আপনার
+                সাথে যোগাযোগ করব ইনশা'আল্লাহ </h4>
+            <form id="submit-to-google-sheet">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input class="form-control" type="text" name="name" id="name" placeholder="Name" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="slip">Contact Number:</label>
+                    <input class="form-control" type="text" name="contact_number" id="contact_number"
+                        placeholder="Contact Number" required />
+                </div>
+                <div class="form-group">
+                    <label for="email">Address :</label>
+                    <input class="form-control" type="text" name="email" id="email" placeholder="Address" required />
+                </div>
+
+                <input type="text" id="source" style="display:none" name="source" />
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    Submit
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+
+
+
+        // Current page URL থেকে:
+        const params = new URLSearchParams(window.location.search);
+        const source = params.get('source'); // "leaflet" বা null
+        var a = document.getElementById("source")
+        // console.log(a, "500")
+        a.value = source;
+        console.log(a.value);
+
+        //  https://script.google.com/macros/s/AKfycby5M6BhRBeHXaZWhR5HVBPPLG1ps-4hq3vAKF6Sid91hQvpb3KTG58NBgN16bgshJuK/exec
+
+        const scriptURL =
+            "https://script.google.com/macros/s/AKfycby5M6BhRBeHXaZWhR5HVBPPLG1ps-4hq3vAKF6Sid91hQvpb3KTG58NBgN16bgshJuK/exec";
+        const form = document.forms["submit-to-google-sheet"];
+        form.addEventListener("submit", (e) => {
+
+
+
+            e.preventDefault();
+
+            var formData = new FormData(form);
+
+
+            fetch(scriptURL, { method: "POST", body: formData })
+                .then((response) => {
+                    swal("Done", "Submitted Successfully.", "success");
+                })
+                .catch((error) => {
+                    swal("Error", "Something went wrong. please try again!", "error");
+                });
+        });
+    </script>
 
     <!-- Footer -->
     <footer class="bg-milk-blue text-white py-8 text-center">
